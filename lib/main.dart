@@ -59,21 +59,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  TextEditingController nameController = TextEditingController();
+  String statement = '';
+  String result = '';
 
  final url = Uri.parse("https://antlr-api-latest.onrender.com/calc");
- final headers = { "Content-Type": "application/json;charset=UTF-8"};
+ //final url = Uri.parse("http://localhost:8080/calc");
+
+final headers = { "Content-Type": "application/json;charset=UTF-8"};
 
  void callModel() async {
        print('antlr model...');
 
        try {
        final prediction_instance = {
-          "statement": "64+1*90"
+          "statement": statement
        };
 
      final res = await http.post(url, headers: headers, body: jsonEncode(prediction_instance));
      if (res.statusCode == 200) {
         final json_prediction = (res.body);
+            setState(() {
+
+             result = res.body;
+            
+            });
         print(  json_prediction);
      }
      else {       print('error');
@@ -132,13 +142,34 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Type formula',
+                  ),
+                  onChanged: (text) {
+                    setState(() {
+                      statement = text;
+                      //you can access nameController in its scope to get
+                      // the value of text entered as shown below
+                      //fullName = nameController.text;
+                    });
+                  },
+                ),
+
+            Container(
+              margin: EdgeInsets.all(20),
+              child: Text("{ statement : '" + statement + "'}"),
+            ),
             const Text(
-              'You have pushed the button this many times:',
+              'Calling api ... ',
             ),
             Text(
-              '$_counter',
+              '$result',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+ 
           ],
         ),
       ),
